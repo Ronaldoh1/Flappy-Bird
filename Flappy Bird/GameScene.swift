@@ -8,12 +8,17 @@
 
 import SpriteKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate{
 
     var bird = SKSpriteNode()
     var bg = SKSpriteNode()
 
+    let birdGroup:UInt32 = 1
+     let objectGroup:UInt32 = 2
+
     override func didMoveToView(view: SKView) {
+
+        self.physicsWorld.contactDelegate = self
 
         var bgTexture = SKTexture(imageNamed: "bg.png")
 
@@ -55,6 +60,11 @@ class GameScene: SKScene {
         bird.physicsBody?.dynamic = true
         bird.physicsBody?.allowsRotation = false
 
+        bird.physicsBody?.categoryBitMask = birdGroup
+
+        bird.physicsBody?.collisionBitMask = objectGroup
+        bird.physicsBody?.contactTestBitMask = objectGroup
+
         self.addChild(bird)
 
 
@@ -64,37 +74,76 @@ class GameScene: SKScene {
         ground.position  = CGPointMake(0, 0)
         ground.physicsBody = SKPhysicsBody(rectangleOfSize: CGSizeMake(self.frame.size.width, 1))
         ground.physicsBody?.dynamic = false
+        ground.physicsBody?.categoryBitMask = objectGroup
         self.addChild(ground)
 
 
+
+
+        bird.zPosition = 10
+
+
+        var timer = NSTimer.scheduledTimerWithTimeInterval(3, target: self, selector: Selector("makePipes"), userInfo: nil, repeats: true)
         //gap 
 
+
+
+
+
+    }
+    func didBeginContact(contact: SKPhysicsContact) {
+        print("contact")
+    }
+
+    func makePipes(){
         let gapHeight = bird.size.height * 4
 
-        //movement 
+        //movement
 
         var movementAmount = arc4random() % UInt32(self.frame.size.height/2)
 
         var pipeOffset = CGFloat(movementAmount) - self.frame.height / 4
 
+
+        var movePipes = SKAction.moveByX(-self.frame.width * 2, y: 0, duration: NSTimeInterval(self.frame.size.width/100))
+        //remove pipes
+
+        var removePipes = SKAction.removeFromParent()
+        var moveAndRemovePipes = SKAction.sequence([movePipes, removePipes])
+
+
+
         var pipe1Texture = SKTexture(imageNamed: "pipe1.png")
         var pipe1 = SKSpriteNode(texture: pipe1Texture)
-        pipe1.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame) + pipe1.size.height/2 + gapHeight/2 + pipeOffset)
+        pipe1.position = CGPoint(x: CGRectGetMidX(self.frame) + self.frame.width, y: CGRectGetMidY(self.frame) + pipe1.size.height/2 + gapHeight/2 + pipeOffset)
         //bg.size.height = self.frame.height
+        pipe1.physicsBody?.categoryBitMask = objectGroup
+        pipe1.runAction(moveAndRemovePipes)
+        //pipe1.position  = CGPointMake(0, 0)
+
+
+
+        pipe1.physicsBody = SKPhysicsBody(rectangleOfSize: pipe1.size)
+        pipe1.physicsBody?.dynamic = false
 
         self.addChild(pipe1)
 
         var pipe2Texture = SKTexture(imageNamed: "pipe2.png")
         var pipe2 = SKSpriteNode(texture: pipe2Texture)
-        pipe2.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame) - pipe2.size.height/2 - gapHeight/2 + pipeOffset)
+        pipe2.position = CGPoint(x: CGRectGetMidX(self.frame) + self.frame.width, y: CGRectGetMidY(self.frame) - pipe2.size.height/2 - gapHeight/2 + pipeOffset)
+        pipe2.physicsBody?.categoryBitMask = objectGroup
         //bg.size.height = self.frame.height
+        //pipe2.position  = CGPointMake(0, 0)
+
+
+        pipe2.runAction(moveAndRemovePipes)
+
+        pipe2.physicsBody = SKPhysicsBody(rectangleOfSize: pipe2.size)
+        pipe2.physicsBody?.dynamic = false
 
         self.addChild(pipe2)
 
-
-
     }
-    
     override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
         /* Called when a touch begins */
 
