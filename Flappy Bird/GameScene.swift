@@ -57,12 +57,39 @@ class GameScene: SKScene {
 
         self.addChild(bird)
 
+
+
+
         var ground = SKNode()
         ground.position  = CGPointMake(0, 0)
         ground.physicsBody = SKPhysicsBody(rectangleOfSize: CGSizeMake(self.frame.size.width, 1))
         ground.physicsBody?.dynamic = false
         self.addChild(ground)
 
+
+        //gap 
+
+        let gapHeight = bird.size.height * 4
+
+        //movement 
+
+        var movementAmount = arc4random() % UInt32(self.frame.size.height/2)
+
+        var pipeOffset = CGFloat(movementAmount) - self.frame.height / 4
+
+        var pipe1Texture = SKTexture(imageNamed: "pipe1.png")
+        var pipe1 = SKSpriteNode(texture: pipe1Texture)
+        pipe1.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame) + pipe1.size.height/2 + gapHeight/2 + pipeOffset)
+        //bg.size.height = self.frame.height
+
+        self.addChild(pipe1)
+
+        var pipe2Texture = SKTexture(imageNamed: "pipe2.png")
+        var pipe2 = SKSpriteNode(texture: pipe2Texture)
+        pipe2.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame) - pipe2.size.height/2 - gapHeight/2 + pipeOffset)
+        //bg.size.height = self.frame.height
+
+        self.addChild(pipe2)
 
 
 
